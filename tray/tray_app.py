@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import logging
 
@@ -10,7 +11,7 @@ except ImportError:
     _tray_available = False
     logging.error("laff: pystray/Pillow not installed — tray disabled")
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ICON_PATH = os.path.join(BASE_DIR, 'assets', 'icon.ico')
 
 

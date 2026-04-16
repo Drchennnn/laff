@@ -14,7 +14,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
 )
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(os.path.abspath(__file__))
 
 
 def load_config() -> dict:
