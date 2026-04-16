@@ -1,3 +1,4 @@
+import os
 import threading
 import logging
 
@@ -9,12 +10,17 @@ except ImportError:
     _tray_available = False
     logging.error("laff: pystray/Pillow not installed — tray disabled")
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ICON_PATH = os.path.join(BASE_DIR, 'assets', 'icon.ico')
 
-def _make_icon(enabled: bool) -> "Image.Image":
+
+def _load_icon() -> "Image.Image":
+    if os.path.isfile(ICON_PATH):
+        return Image.open(ICON_PATH)
+    # fallback: 代码生成绿色圆点
     img = Image.new('RGB', (64, 64), color=(30, 30, 30))
     draw = ImageDraw.Draw(img)
-    color = (0, 200, 100) if enabled else (150, 150, 150)
-    draw.ellipse([8, 8, 56, 56], fill=color)
+    draw.ellipse([8, 8, 56, 56], fill=(0, 200, 100))
     return img
 
 
@@ -33,7 +39,6 @@ class TrayApp:
     def _run(self):
         def toggle(icon, item):
             self._config['enabled'] = not self._config['enabled']
-            icon.icon = _make_icon(self._config['enabled'])
 
         def quit_app(icon, item):
             icon.stop()
@@ -49,7 +54,7 @@ class TrayApp:
         )
         self._icon = pystray.Icon(
             'laff',
-            _make_icon(self._config['enabled']),
+            _load_icon(),
             'laff',
             menu=menu,
         )
