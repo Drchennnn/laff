@@ -33,7 +33,7 @@ def main():
 
     sounds_dir = os.path.join(BASE_DIR, 'sounds')
     router = Router(sounds_dir, config['sound_pack'])
-    engine = SoundEngine(config['volume'], config['cooldown'])
+    engine = SoundEngine(config['cooldown'])
     listener = Listener(config['port'], event_queue)
 
     stop = False

@@ -1,5 +1,5 @@
 port: 9876
-volume: 0.4
+# volume: 已移除，请直接调整系统音量或音频文件本身
 sound_pack: default
 cooldown: 2.0
 enabled: true

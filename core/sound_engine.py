@@ -1,42 +1,32 @@
 import time
+import threading
 import logging
 
 try:
-    import pygame
-    _pygame_available = True
+    from playsound import playsound
+    _playsound_available = True
 except ImportError:
-    _pygame_available = False
-    logging.error("laff: pygame not installed — audio disabled")
+    _playsound_available = False
+    logging.error("laff: playsound not installed — audio disabled")
 
 
 class SoundEngine:
-    def __init__(self, volume: float, cooldown: float):
-        self.volume = volume
+    def __init__(self, cooldown: float):
         self.cooldown = cooldown
         self._last_played: dict[str, float] = {}
-        self._ready = False
-        if _pygame_available:
-            try:
-                pygame.mixer.init()
-                self._ready = True
-            except Exception as e:
-                logging.error(f"laff: pygame mixer init failed: {e}")
+        if not _playsound_available:
+            logging.error("laff: audio disabled")
 
     def play(self, event_type: str, path: str):
-        if not self._ready:
+        if not _playsound_available:
             return
         now = time.monotonic()
         if now - self._last_played.get(event_type, 0.0) < self.cooldown:
             return
-        try:
-            sound = pygame.mixer.Sound(path)
-            sound.set_volume(self.volume)
-            sound.play()
-            self._last_played[event_type] = now
-            logging.info(f"laff: playing {path}")
-        except Exception as e:
-            logging.warning(f"laff: could not play {path}: {e}")
+        self._last_played[event_type] = now
+        logging.info(f"laff: playing {path}")
+        # playsound 是阻塞的，放到线程里避免卡主循环
+        threading.Thread(target=playsound, args=(path,), daemon=True).start()
 
     def shutdown(self):
-        if self._ready:
-            pygame.mixer.quit()
+        pass
