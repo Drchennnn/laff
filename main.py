@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else
 def load_config() -> dict:
     path = os.path.join(BASE_DIR, 'config.yaml')
     try:
-        with open(path) as f:
+        with open(path, encoding='utf-8') as f:
             return yaml.safe_load(f)
     except FileNotFoundError:
         print(f"laff: config.yaml not found at {path}", file=sys.stderr)
@@ -33,7 +33,7 @@ def main():
 
     sounds_dir = os.path.join(BASE_DIR, 'sounds')
     router = Router(sounds_dir, config['sound_pack'])
-    engine = SoundEngine(config['cooldown'])
+    engine = SoundEngine(config['volume'], config['cooldown'])
     listener = Listener(config['port'], event_queue)
 
     stop = False
