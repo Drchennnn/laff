@@ -9,7 +9,7 @@
 - 系统托盘图标，右键可开关、退出
 - 支持音效包切换，换个目录就换一套声音
 - 每种事件支持多个音效文件，每次随机播放一个
-- 同类事件 2 秒冷却，不会连续刷屏
+- 同类事件 2 秒冷却，不会连续触发
 
 ## 工作原理
 
@@ -26,10 +26,12 @@
 laff/
 ├── main.py                  # 入口，事件主循环
 ├── config.yaml              # 配置文件
+├── assets/
+│   └── icon.ico             # 托盘图标
 ├── core/
 │   ├── listener.py          # TCP socket 服务，接收 hook 事件
 │   ├── router.py            # 将事件映射到音效文件路径
-│   └── sound_engine.py      # 异步播放，管理冷却时间
+│   └── sound_engine.py      # 播放音效，管理冷却时间
 ├── tray/
 │   └── tray_app.py          # 系统托盘图标
 ├── sounds/
@@ -74,7 +76,7 @@ cd e:\laff
 python main.py
 ```
 
-启动后托盘区会出现一个绿色圆点图标。
+启动后托盘区会出现图标。
 
 ### 4. 注入 PowerShell hook
 
@@ -84,7 +86,7 @@ python main.py
 . "e:\laff\scripts\hook.ps1"
 ```
 
-加入 `$PROFILE` 的方法：
+加入 `$PROFILE` 的方法（所有 PowerShell 窗口自动生效）：
 
 ```powershell
 Add-Content $PROFILE '. "e:\laff\scripts\hook.ps1"'
@@ -104,7 +106,7 @@ python -c "import socket,json; s=socket.socket(); s.connect(('127.0.0.1',9876));
 
 ```yaml
 port: 9876          # 监听端口
-volume: 0.8         # 音量（0.0 ~ 1.0）
+volume: 0.4         # 音量（0.0 ~ 1.0）
 sound_pack: default # 音效包目录名
 cooldown: 2.0       # 冷却时间（秒）
 enabled: true       # 是否启用
@@ -120,13 +122,32 @@ sound_pack: laugh_track
 
 重启 `main.py` 生效。
 
+## 打包成 exe
+
+```bash
+pip install pyinstaller
+pyinstaller --noconsole --onefile --icon=assets/icon.ico --hidden-import=pygame.mixer main.py --name laff
+```
+
+生成的 `dist/laff.exe` 需要和以下文件放在同一目录才能运行：
+
+```
+laff.exe
+config.yaml
+assets/icon.ico
+sounds/default/success/   ← 放 mp3
+sounds/default/failure/   ← 放 mp3
+```
+
 ## 开机自启
 
-用 `pythonw` 启动可以隐藏控制台窗口，在 `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup` 里创建快捷方式，目标设为：
+在 `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup` 里创建快捷方式，目标设为：
 
 ```
 pythonw e:\laff\main.py
 ```
+
+或直接放 `laff.exe` 的快捷方式到同一目录。
 
 ## 依赖
 
@@ -134,7 +155,5 @@ pythonw e:\laff\main.py
 |---|---|
 | pygame | 音频播放 |
 | pystray | 系统托盘图标 |
-| Pillow | 生成托盘图标图像 |
+| Pillow | 加载托盘图标图像 |
 | pyyaml | 读取配置文件 |
-
-全部为纯 Python，无需额外系统依赖。
