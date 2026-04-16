@@ -1,5 +1,17 @@
-# Place your sound files here:
-#   success.mp3  — played when a command exits with code 0
-#   error.mp3    — played when a command exits with a non-zero code
-#
-# This pack is for canned laughter / sad trombone style sounds.
+# laugh_track 音效包
+
+罐头笑声 / 悲伤小号风格的音效包示例。
+
+把你的音效文件按以下结构放好：
+
+```
+sounds/laugh_track/
+├── success/     ← 命令成功时随机播放其中一个
+│   ├── 任意名称.mp3
+│   └── ...
+└── failure/     ← 命令失败时随机播放其中一个
+    ├── 任意名称.mp3
+    └── ...
+```
+
+文件名随意，只要是 `.mp3` 格式即可。

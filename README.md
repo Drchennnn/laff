@@ -8,6 +8,7 @@
 - 命令失败（退出码非 0）→ 播放失败音效（比如罐头笑声）
 - 系统托盘图标，右键可开关、退出
 - 支持音效包切换，换个目录就换一套声音
+- 每种事件支持多个音效文件，每次随机播放一个
 - 同类事件 2 秒冷却，不会连续刷屏
 
 ## 工作原理
@@ -32,8 +33,12 @@ laff/
 ├── tray/
 │   └── tray_app.py          # 系统托盘图标
 ├── sounds/
-│   ├── default/             # 默认音效包（success.mp3 + error.mp3）
+│   ├── default/             # 默认音效包
+│   │   ├── success/         # 成功音效（随机播放）
+│   │   └── failure/         # 失败音效（随机播放）
 │   └── laugh_track/         # 罐头笑声音效包（示例）
+│       ├── success/
+│       └── failure/
 └── scripts/
     └── hook.ps1             # 注入 PowerShell 的 hook 脚本
 ```
@@ -48,11 +53,19 @@ pip install pygame pystray Pillow pyyaml
 
 ### 2. 准备音效文件
 
-在 `sounds/default/` 目录下放入：
-- `success.mp3` — 命令成功时播放
-- `error.mp3` — 命令失败时播放
+在 `sounds/default/` 下按子目录放入 MP3 文件：
 
-短音效（0.5–2 秒）效果最好。
+```
+sounds/default/
+├── success/        ← 命令成功时随机播一个
+│   ├── ding.mp3
+│   └── cheer.mp3
+└── failure/        ← 命令失败时随机播一个
+    ├── sad_trombone.mp3
+    └── laugh.mp3
+```
+
+文件名随意，只要是 `.mp3` 格式即可。短音效（0.5–2 秒）效果最好。
 
 ### 3. 启动后台进程
 
@@ -99,7 +112,7 @@ enabled: true       # 是否启用
 
 ### 切换音效包
 
-把音效文件放到 `sounds/你的包名/` 目录下，然后修改 `config.yaml`：
+在 `sounds/` 下新建一个目录，内部同样用 `success/` 和 `failure/` 子目录存放 MP3，然后修改 `config.yaml`：
 
 ```yaml
 sound_pack: laugh_track
